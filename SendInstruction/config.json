@@ -1,4 +1,8 @@
 {
   "dev_name": "/dev/ttyACM0",
-  "to_ip": "192.168.1.20"
+  "user": "ftpuser",
+  "passwd": "ftpuser",
+  "output_folder": "/PartsOrder/Output/",
+  "db_file": "/db/items.db",
+  "server": "192.168.1.20"
 }
