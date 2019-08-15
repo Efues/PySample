@@ -15,9 +15,3 @@ def read():
     with open('config.json') as f:
         conf = Config(**json.loads(f.read()))
     return conf
-
-
-# Serialize example
-#conf = Config( to_ip = '192.168.1.20', dev_name = '/dev/ttyACM0')
-#with open('config.json', mode='w') as f:
-#    f.write(json.dumps(conf.__dict__))

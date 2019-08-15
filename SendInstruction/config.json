@@ -2,7 +2,7 @@
   "dev_name": "/dev/ttyACM0",
   "user": "ftpuser",
   "passwd": "ftpuser",
-  "output_folder": "/PartsOrder/Output/",
+  "output_folder": "/output/",
   "db_file": "/db/items.db",
   "server": "192.168.1.20",
   "local_db_file_path": "item.db"

@@ -1,7 +1,5 @@
 import subprocess
 
-import serial
-import time
 import config
 import form
 
@@ -16,7 +14,6 @@ def is_connectable(host):
     return ping.returncode == 0
 
 #Main
-
 try:
     conf = config.read()
     form = form.Form(conf=conf)
@@ -36,11 +33,11 @@ try:
             retr = 'RETR ' + conf.db_file
             ftp.retrbinary(retr, f.write)
         ftp.quit()
+        print('DB file is downloaded')
 
     # open serial device
-#    form.serial = serial.Serial(conf.dev_name, timeout=0.1)
+    form.serial = serial.Serial(conf.dev_name, timeout=0.1)
     form.append_status(text='serial port open')
-
     form.run()
 
 except Exception as e:

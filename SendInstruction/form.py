@@ -2,9 +2,11 @@
 import os
 import codecs
 import Tkinter
+import tkMessageBox
 import datetime
 import sqlite3
 from contextlib import closing
+from ftplib import *
 
 class Form():
     def __init__(self, conf):
@@ -13,7 +15,7 @@ class Form():
         self.root = Tkinter.Tk()
         self.root.title('Parts Order to 106')
         self.root.geometry("400x200")
-#        self.root.attributes("-fullscreen", True)
+        self.root.attributes("-fullscreen", True)
         self.setup_controllers()
 
     def setup_controllers(self):
@@ -89,8 +91,8 @@ class Form():
         button_close.grid(row=1, column=1,padx=5, pady=5)
 
     def button_test_clicked(self):
-#        self.main('JAMA501195000001021100021041011102112071210412406127041410214201144061520440205515015160151908520045210652606523105220640102200596622620000000001wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww001')
-#        self.main('JAMA501195000001021100021041011102112071210412406127041410214201144061520440205515015160151908520045210652606523105220640102201107270140000000001wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww001')
+        self.main('JAMA501195000001021100021041011102112071210412406127041410214201144061520440205515015160151908520045210652606523105220640102200596622620000000001wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww001')
+        self.main('JAMA501195000001021100021041011102112071210412406127041410214201144061520440205515015160151908520045210652606523105220640102201107270140000000001wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww001')
         self.main('JAMA501195000001021100021041011102112071210412406127041410214201144061520440205515015160151908520045210652606523105220640102201107270140000000001wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww002')
 
     def run(self):
@@ -134,23 +136,38 @@ class Form():
             file_path = self.write_file(record);
 
             # Send file
-
+            ftp = FTP(self.conf.server)
+            ftp.login(self.conf.user, self.conf.passwd)
+            print ('ftp logged in!')
+            ftp_command = 'STOR ' + self.conf.output_folder + file_path
+            with open(file_path, 'rb') as f:
+                print ('sending..'+ftp_command)
+                ftp.storlines(ftp_command, f)
+            ftp.quit()
+            print ('ftp logged out')
 
             # Delete file
-#            os.remove(file_path)
-
+            os.remove(file_path)
+            tkMessageBox.showinfo('Pos', 'OK!')
+            self.append_status('OK : '+item_no)
         except Exception as e:
-            self.append_status('Failed:'+  item_no)
+            if(item_no is not None):
+                self.append_status('NG : '+item_no)
+            else:
+                self.append_status('NG')
+            tkMessageBox.showerror('Pos', 'NG')
             print(e.message)
 
     def parse_qrline(self, qrline):
-        qr_pre_fix = "JAMA50119500000102110002104101110211207121041240612704141021420114406152044020551501516015190852004521065260652310522064010220"
+        qrline = qrline.replace('\n','').replace('\r', '')
+
+        qr_pre_fix = 'JAMA50119500000102110002104101110211207121041240612704141021420114406152044020551501516015190852004521065260652310522064010220'
         qr_digit_count=221
         item_no_count=10
         seller_id_count=3
 
         if len(qrline) is not qr_digit_count:
-            raise Exception('invalid qr : digit count is' + len(qrline))
+            raise Exception('invalid qr : digit count is' + str(len(qrline)))
         if(qrline.find(qr_pre_fix) is not 0):
             raise Exception('invalid qr : prefix error')
 
